@@ -1,6 +1,9 @@
 import googlemaps
 import concurrent.futures
 from models import Googlemaps, GoogleResponse
+from geopy.geocoders import Nominatim
+from py_geohash_any import geohash as gh
+
 
 
 def initialize_google():
@@ -20,9 +23,9 @@ def distance_matrix(location, departureTime,home_address):
                                         units=g.UNITS)
     return matrix
 
-def pooling(addresses,date_index):
+def pooling(addresses,date_index,home_address):
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        future_to_matrix = {executor.submit(distance_matrix, address, date_index()): address for address
+        future_to_matrix = {executor.submit(distance_matrix, address, date_index,home_address): address for address
                             in addresses}
         a = []
         for future in concurrent.futures.as_completed(future_to_matrix):
@@ -35,3 +38,28 @@ def pooling(addresses,date_index):
             else:
                 print('{0} response is {1} bytes'.format(address, len(request)))
         return a
+
+
+def loc_lookup(address,reverse=False):
+    geolocator = Nominatim(user_agent="specify_your_app_name_here")
+    if reverse==False:
+        location = geolocator.geocode(str(address))
+        return (location.latitude,location.longitude)
+    else:
+        location = geolocator.reverse(address)
+        return location.address
+
+def geohash(data,precision):
+    lat = float(data[0])
+    long = float(data[1])
+    return gh.encode(lat,long,precision)
+
+def decoder(x,precision):
+    a = gh.decode(x,precision)
+    return (a['lat'],a['lon'])
+
+def neighbors(data,precision,range):
+    hash = geohash(data,precision)
+    n = list(gh.neighbors(hash,range).values())
+    n = [decoder(x,8) for x in n]
+    return n
