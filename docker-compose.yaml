@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+
+  tsp:
+    image: tsp:latest
+    build: ""
+    mem_limit: 100M
+    restart: always
+    ports:
+     - "8081:80"
