@@ -3,6 +3,7 @@ import concurrent.futures
 from models import Googlemaps, GoogleResponse
 from geopy.geocoders import Nominatim
 from py_geohash_any import geohash as gh
+from itertools import permutations,combinations
 
 
 
@@ -56,10 +57,14 @@ def geohash(data,precision):
 
 def decoder(x,precision):
     a = gh.decode(x,precision)
-    return (a['lat'],a['lon'])
+    return [a['lat'],a['lon']]
 
 def neighbors(data,precision,range):
     hash = geohash(data,precision)
     n = list(gh.neighbors(hash,range).values())
     n = [decoder(x,8) for x in n]
     return n
+
+def combo(l):
+    a = list(combinations(l,2))
+    return a
