@@ -1,10 +1,6 @@
 import googlemaps
 import concurrent.futures
-import numpy as np
-import json
-import datetime
-from Util import date_index,obtain_concierge_trips
-from classes import Googlemaps, Request, Trips, GoogleResponse
+from models import Googlemaps, GoogleResponse
 
 
 def initialize_google():
@@ -14,9 +10,9 @@ def initialize_google():
     return client,g
 
 
-def distance_matrix(flipLocation, departureTime):
+def distance_matrix(location, departureTime,home_address):
     client,g = initialize_google()
-    matrix = client.distance_matrix(origins=g.HQ, destinations=flipLocation,
+    matrix = client.distance_matrix(origins=home_address, destinations=location,
                                         mode=g.MODE,
                                         language=g.LANG,
                                         departure_time=departureTime,
