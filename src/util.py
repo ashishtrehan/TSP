@@ -55,16 +55,23 @@ def geohash(data,precision):
     long = float(data[1])
     return gh.encode(lat,long,precision)
 
-def decoder(x,precision):
-    a = gh.decode(x,precision)
+def decoder(x):
+    a = gh.decode(x)
     return [a['lat'],a['lon']]
 
 def neighbors(data,precision,range):
     hash = geohash(data,precision)
     n = list(gh.neighbors(hash,range).values())
-    n = [decoder(x,8) for x in n]
-    return n
+    print (len(n))
+    # # l = [decoder(x,8) for x in n]
+    l = [decoder(x) for x in n]
+    return l
 
 def combo(l):
     a = list(combinations(l,2))
     return a
+
+def reverse_lookup(x,y):
+    client, g = initialize_google()
+    destination = client.reverse_geocode((x,y))
+    return destination
