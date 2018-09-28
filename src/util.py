@@ -4,6 +4,8 @@ from datetime import datetime as dt
 from models import Googlemaps, GoogleResponse,GeocodeResponse
 from geopy.geocoders import Nominatim
 from py_geohash_any import geohash as gh
+import pandas as pd
+import numpy as np
 from itertools import permutations,combinations
 
 
@@ -78,6 +80,7 @@ def reverse_lookup(x,y):
 def build_destinations(combo):
     dm = distance_matrix
     date_index = dt.now()
+    dists = []
     for x in combo:
         depatureAddress = tuple(x[1])
         depatureAddress_lat = depatureAddress[0]
@@ -86,7 +89,19 @@ def build_destinations(combo):
         home_address_lat = home_address[0]
         home_address_long = home_address[1]
         distance = GoogleResponse(dm(depatureAddress,date_index,home_address))
-        print ({'departure':reverse_lookup(depatureAddress_lat,depatureAddress_long),
+        d = {'departure':reverse_lookup(depatureAddress_lat,depatureAddress_long),
                 'home':reverse_lookup(home_address_lat,home_address_long),
-                'distance':distance.distance_value})
+                'distance':distance.distance_value}
+        dists.append(d)
+    df = pd.DataFrame(dists)
+    df = pd.pivot_table(df,values = 'distance',index='departure',columns='home').fillna(0)
+    df.reindex_axis(sorted(df.columns), axis=1)
+    df.sort_index(axis=0)
+    df.to_csv('test.csv')
+    return df.values, df.columns, df.index
 
+def build_matrix(x,y):
+    a = np.random.rand(x,y)
+    b = a-a.diagonal()
+    b = b*100
+    return np.abs(b.astype(int))
