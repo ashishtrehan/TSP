@@ -1,6 +1,7 @@
 import googlemaps
 import concurrent.futures
-from models import Googlemaps, GoogleResponse
+from datetime import datetime as dt
+from models import Googlemaps, GoogleResponse,GeocodeResponse
 from geopy.geocoders import Nominatim
 from py_geohash_any import geohash as gh
 from itertools import permutations,combinations
@@ -62,8 +63,6 @@ def decoder(x):
 def neighbors(data,precision,range):
     hash = geohash(data,precision)
     n = list(gh.neighbors(hash,range).values())
-    print (len(n))
-    # # l = [decoder(x,8) for x in n]
     l = [decoder(x) for x in n]
     return l
 
@@ -74,4 +73,20 @@ def combo(l):
 def reverse_lookup(x,y):
     client, g = initialize_google()
     destination = client.reverse_geocode((x,y))
-    return destination
+    return GeocodeResponse(destination[0]).formatted_address
+
+def build_destinations(combo):
+    dm = distance_matrix
+    date_index = dt.now()
+    for x in combo:
+        depatureAddress = tuple(x[1])
+        depatureAddress_lat = depatureAddress[0]
+        depatureAddress_long = depatureAddress[1]
+        home_address = tuple(x[0])
+        home_address_lat = home_address[0]
+        home_address_long = home_address[1]
+        distance = GoogleResponse(dm(depatureAddress,date_index,home_address))
+        print ({'departure':reverse_lookup(depatureAddress_lat,depatureAddress_long),
+                'home':reverse_lookup(home_address_lat,home_address_long),
+                'distance':distance.distance_value})
+

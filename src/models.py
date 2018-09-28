@@ -24,6 +24,15 @@ class GoogleResponse(object):
         self.duration_traffic_text = self.elements.get('duration_in_traffic').get('text')
         self.duration_traffic_value = self.elements.get('duration_in_traffic').get('value')
 
+class GeocodeResponse(object):
+    def __init__(self,dict):
+        self.formatted_address = dict['formatted_address']
+        self.place_id = dict['place_id']
+        self.types = dict['types']
+        self.address_components = dict['address_components']
+        self.geometry = dict['geometry']
+
+
 
 
 
